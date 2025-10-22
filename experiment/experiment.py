@@ -3,82 +3,26 @@ import os
 import subprocess
 import time
 
-# 0000 00 00 00 00 00 00 00 00
-# LUT  0x 0y 1x 1y 2x 2y 3x 3y
-
-class Node:
-    """x, y, function, input0x input0y, input1x, input1y, input2x, input2y, input3x, input3y"""
-    def __init__(self, x, y, function, input0x=None, input0y=None, input1x=None, input1y=None, input2x=None, input2y=None, input3x=None, input3y=None):
-        self.x = x
-        self.y = y
-        self.function = function
-        self.input0x = input0x
-        self.input0y = input0y
-        self.input1x = input1x
-        self.input1y = input1y
-        self.input2x = input2x
-        self.input2y = input2y
-        self.input3x = input3x
-        self.input3y = input3y
-    
-    def to_verilog(self):
-        def input_str(x, y):
-            if x is None or y is None or (x == self.x and y == self.y):
-                return "1'b0"
-            elif self.x == 0:
-                return f"in{y%10}"
-            else:
-                return f"x{x}_y{y}"
-        # Adjust x coordinate based on FPGA physical layout
-        adjusted_x = self.x
-        if self.x < 5:
-            adjusted_x = self.x + 1
-        if 5 <= self.x < 18:
-            adjusted_x = self.x + 2
-        elif self.x >= 18:
-            adjusted_x = self.x + 3
-        
-        return f"""
-    (* keep, dont_touch *)
-    (* BEL = "X{adjusted_x}/Y{int(self.y/8)+1}/lc{self.y%8}" *)
-    SB_LUT4 #(
-        .LUT_INIT(16'b{bin(self.function)[2:].zfill(16)[::-1]})
-    ) lut_{self.x}_{self.y} (
-        .O(x{self.x}_y{self.y}),
-        .I0({input_str(self.input0x, self.input0y)}),
-        .I1({input_str(self.input1x, self.input1y)}),
-        .I2({input_str(self.input2x, self.input2y)}),
-        .I3({input_str(self.input3x, self.input3y)})
-    );"""
-
-    def mutate(self, lut_rate=0.01, input_rate=0.1, x_radius=2, y_radius=5, none_weight=0.25):
-        # Mutate the function with a certain probability
-        flip_mask = 0
-        for i in range(16):
-            if np.random.rand() < lut_rate:
-                flip_mask |= (1 << i)
-        self.function ^= flip_mask
-
-    def __repr__(self):
-        return self.__str__()
+from node import Node
     
 def generate_verilog(genotype):
     nodes = []
     width = int(len(genotype) ** 0.5)
     for i, gene in enumerate(genotype):
-        lut = gene & 0b11110000000000000000
+        lut = (gene & 0b11110000000000000000) >> 16
         x = i % width
         y = i // width
         
         # Offsets
-        input0x = (gene >> 14) & 0b11 - 2
-        input0y = (gene >> 12) & 0b11 - 2
-        input1x = (gene >> 10) & 0b11 - 2
-        input1y = (gene >> 8) & 0b11 - 2
-        input2x = (gene >> 6) & 0b11 - 2
-        input2y = (gene >> 4) & 0b11 - 2
-        input3x = (gene >> 2) & 0b11 - 2
-        input3y = gene & 0b11 - 2
+        input0x = int((gene >> 14) & 0b11) - 2
+        input0y = int((gene >> 12) & 0b11) - 2
+        input1x = int((gene >> 10) & 0b11) - 2
+        input1y = int((gene >> 8) & 0b11) - 2
+        input2x = int((gene >> 6) & 0b11) - 2
+        input2y = int((gene >> 4) & 0b11) - 2
+        input3x = int((gene >> 2) & 0b11) - 2
+        input3y = int(gene & 0b11) - 2
+        print(input0x)
 
         # Actual Values
         input0x = x + input0x
@@ -89,22 +33,19 @@ def generate_verilog(genotype):
         input2y = y + input2y
         input3x = x + input3x
         input3y = y + input3y
+        print(input0x)
 
-        nodes.append(Node(x, y, lut, input0x, input0y, input1x, input1y, input2x, input2y, input3x, input3y))
+        nodes.append(Node(width, x, y, lut, input0x, input0y, input1x, input1y, input2x, input2y, input3x, input3y))
         
     
     outputs = []
     wires = []
 
     for node in nodes:
-        if node.x == width - 1:
-            outputs.append(f"x{node.x}_y{node.y}")
-        else:
-            wires.append(f"x{node.x}_y{node.y}")
+        wires.append(f"x{node.x}_y{node.y}")
             
-    inputs = [f"in{i}" for i in range(width)]
-    
-    outputs = [f"x{width-1}_y{i}" for i in range(width)]
+    inputs = [f"in{i}" for i in range(10)]
+    outputs = [f"out{i}" for i in range(10)]
     
     verilog_lines = []
     verilog_lines.append(f"module cgp_module (")
@@ -130,7 +71,7 @@ def synthesize_directory(directory):
             subprocess.run(
                 ["yosys", "-p", f"read_verilog {filepath}; synth_ice40 -top cgp_module -json {output_filepath}"],
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                # stderr=subprocess.DEVNULL
             )
 
 def pnr_directory(directory):
@@ -139,9 +80,9 @@ def pnr_directory(directory):
             filepath = os.path.join(directory, filename)
             output_filepath = os.path.join(directory, filename.replace(".rpt", ".asc"))
             subprocess.run(
-                ["nextpnr-ice40", "--up5k", "--json", filepath, "--asc", output_filepath, "--pcf", "./constraints.pcf", "--package", "sg48", "--pcf-allow-unconstrained"],
+                ["nextpnr-ice40", "--up5k", "--json", filepath, "--asc", output_filepath, "--pcf", "./constraints.pcf", "--package", "sg48", "--pcf-allow-unconstrained", "--force"],
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                # stderr=subprocess.DEVNULL
             )
             
 def make_population(size, genotype_length):
@@ -154,46 +95,12 @@ def save_population_to_files(population, directory):
             verilog_code = generate_verilog(ind)
             f.write(verilog_code)
             
-def simulate_directory(directory):
-    for filename in os.listdir(directory):
-        if filename.endswith("_sim.v"):
-            filepath = os.path.join(directory, filename)
-            output_filepath = os.path.join(directory, filename.replace("_sim.v", "_sim.out"))
-            subprocess.run(
-                ["iverilog", filepath, "ice40_stubs.v", "tb.v", "-o", output_filepath],
-                stdout=subprocess.DEVNULL,
-                # stderr=subprocess.DEVNULL
-            )
-            
 def population_to_bitstreams(population, directory):
     start_time = time.time()
     save_population_to_files(population, directory)
     synthesize_directory(directory)
     pnr_directory(directory)
-    # Clean up intermediate files
-    for filename in os.listdir(directory):
-        if filename.endswith(".v") or filename.endswith(".rpt"):
-            os.remove(os.path.join(directory, filename))
     print(f"Total time for bitstream generation: {time.time() - start_time} seconds")
-
-
-def directory_to_simulation_verilog(directory):
-    for filename in os.listdir(directory):
-        if filename.endswith(".asc"):
-            filepath = os.path.join(directory, filename)
-            output_filepath = os.path.join(directory, filename.replace(".asc", "_sim.v"))
-            os.system(f"icebox_vlog -n cgp_module {filepath} > {output_filepath}")
-
-def simulate_population(population, directory):
-    start_time = time.time()
-    population_to_bitstreams(population, directory)
-    directory_to_simulation_verilog(directory)
-    simulate_directory(directory)
-    # Clean up intermediate files
-    for filename in os.listdir(directory):
-        if filename.endswith(".v") or filename.endswith("_sim.v"):
-            os.remove(os.path.join(directory, filename))
-    print(f"Total time for simulation: {time.time() - start_time} seconds")
     
-pop = make_population(10, 64)
-simulate_population(pop, "./population")
+pop = make_population(1, 9)
+population_to_bitstreams(pop, "./population")

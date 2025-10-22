@@ -7,7 +7,8 @@ def generate_verilog(genotype):
     nodes = []
     width = int(len(genotype) ** 0.5)
     for i, gene in enumerate(genotype):
-        lut = (gene & 0b11110000000000000000) >> 16
+
+        lut = gene >> 16
         x = i % width
         y = i // width
         
@@ -93,7 +94,7 @@ def simulate_directory(directory):
     return scores
 
 def make_population(size, genotype_length):
-    return {i: np.random.randint(0, 2**20, size=genotype_length, dtype=np.uint32) for i in range(size)}
+    return {i: np.random.randint(0, 2**32, size=genotype_length, dtype=np.uint32) for i in range(size)}
 
 def save_population_to_files(population, directory):
     if not os.path.isdir(directory):
@@ -112,12 +113,11 @@ def cleanup_directory(directory):
 def mutate_population(population, rate=0.01):
     for i in population:
         for j in range(len(population[i])):
-            if np.random.rand() < rate:
-                # Mutate this gene
-                gene = population[i][j]
-                # Randomly flip one bit in the 20-bit gene
-                bit_to_flip = 1 << np.random.randint(0, 20)
-                population[i][j] = gene ^ bit_to_flip
+            gene = population[i][j]
+            for k in range(32):
+                if np.random.rand() < rate:
+                    gene ^= (1 << k)
+            population[i][j] = gene
 
 def evolve(population_size=32, genotype_length=25, generations=10):
     pop = make_population(population_size, genotype_length)
@@ -140,7 +140,7 @@ def evolve(population_size=32, genotype_length=25, generations=10):
                 child_genotype = pop[parent].copy()
                 pop[ind] = child_genotype
         
-        mutate_population(pop, rate=0.1)
+        mutate_population(pop, rate=0.01)
                 
 if __name__ == "__main__":     
-    evolve(32, 9, 100)
+    evolve(100, 9, 10000)

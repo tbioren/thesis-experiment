@@ -100,5 +100,8 @@ def population_to_bitstreams(population, directory):
     pnr_directory(directory)
     print(f"Total time for bitstream generation: {time.time() - start_time} seconds")
     
-pop = make_population(10, 9)
-population_to_bitstreams(pop, "./population")
+# pop = make_population(10, 9)
+# population_to_bitstreams(pop, "./population")
+
+synthesize_directory("./population_99")
+pnr_directory("./population_99")

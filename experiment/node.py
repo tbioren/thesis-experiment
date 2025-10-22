@@ -49,7 +49,7 @@ class Node:
         (* keep, dont_touch *)
         (* BEL = "X{adjusted_x}/Y{int(self.y/8)+1}/lc{self.y%8}" *)
         SB_LUT4 #(
-        .LUT_INIT(16'b{"{0:016b}".format(self.function)[:16]})
+        .LUT_INIT(16'b{"{0:016b}".format(self.function)})
         ) lut_{output_str(self.x, self.y)} (
         .O({output_str(self.x, self.y)}),
         .I0({input_str(self.input0x, self.input0y)}),

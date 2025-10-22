@@ -22,7 +22,6 @@ def generate_verilog(genotype):
         input2y = int((gene >> 4) & 0b11) - 2
         input3x = int((gene >> 2) & 0b11) - 2
         input3y = int(gene & 0b11) - 2
-        print(input0x)
 
         # Actual Values
         input0x = x + input0x
@@ -33,7 +32,6 @@ def generate_verilog(genotype):
         input2y = y + input2y
         input3x = x + input3x
         input3y = y + input3y
-        print(input0x)
 
         nodes.append(Node(width, x, y, lut, input0x, input0y, input1x, input1y, input2x, input2y, input3x, input3y))
         
@@ -71,7 +69,7 @@ def synthesize_directory(directory):
             subprocess.run(
                 ["yosys", "-p", f"read_verilog {filepath}; synth_ice40 -top cgp_module -json {output_filepath}"],
                 stdout=subprocess.DEVNULL,
-                # stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL
             )
 
 def pnr_directory(directory):
@@ -82,7 +80,7 @@ def pnr_directory(directory):
             subprocess.run(
                 ["nextpnr-ice40", "--up5k", "--json", filepath, "--asc", output_filepath, "--pcf", "./constraints.pcf", "--package", "sg48", "--pcf-allow-unconstrained", "--force"],
                 stdout=subprocess.DEVNULL,
-                # stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL
             )
             
 def make_population(size, genotype_length):
@@ -102,5 +100,5 @@ def population_to_bitstreams(population, directory):
     pnr_directory(directory)
     print(f"Total time for bitstream generation: {time.time() - start_time} seconds")
     
-pop = make_population(1, 9)
+pop = make_population(10, 9)
 population_to_bitstreams(pop, "./population")

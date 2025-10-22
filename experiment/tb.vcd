@@ -1,0 +1,301 @@
+$date
+	Wed Oct 22 15:42:26 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb $end
+$var wire 1 ! out $end
+$var reg 4 " in [3:0] $end
+$var integer 32 # i [31:0] $end
+$var integer 32 $ score [31:0] $end
+$var integer 32 % total [31:0] $end
+$scope function expected $end
+$var reg 4 & v [3:0] $end
+$upscope $end
+$scope module dut $end
+$var wire 1 ' in0 $end
+$var wire 1 ( in1 $end
+$var wire 1 ) in2 $end
+$var wire 1 * in3 $end
+$var wire 1 + in4 $end
+$var wire 1 , in5 $end
+$var wire 1 - in6 $end
+$var wire 1 . in7 $end
+$var wire 1 / in8 $end
+$var wire 1 0 in9 $end
+$var wire 1 1 out3 $end
+$var wire 1 2 out4 $end
+$var wire 1 3 out5 $end
+$var wire 1 4 out6 $end
+$var wire 1 5 out7 $end
+$var wire 1 6 out8 $end
+$var wire 1 7 out9 $end
+$var wire 1 8 x2_y0 $end
+$var wire 1 9 x2_y1 $end
+$var wire 1 : x2_y2 $end
+$var wire 1 ; x1_y2 $end
+$var wire 1 < x1_y1 $end
+$var wire 1 = x1_y0 $end
+$var wire 1 > x0_y2 $end
+$var wire 1 ? x0_y1 $end
+$var wire 1 @ x0_y0 $end
+$var wire 1 A out2 $end
+$var wire 1 B out1 $end
+$var wire 1 ! out0 $end
+$scope module lut_out0 $end
+$var wire 1 C I0 $end
+$var wire 1 D I1 $end
+$var wire 1 E I2 $end
+$var wire 1 ! O $end
+$var wire 1 < I3 $end
+$upscope $end
+$scope module lut_out1 $end
+$var wire 1 F I1 $end
+$var wire 1 G I2 $end
+$var wire 1 H I3 $end
+$var wire 1 B O $end
+$var wire 1 ; I0 $end
+$upscope $end
+$scope module lut_out2 $end
+$var wire 1 9 I1 $end
+$var wire 1 I I2 $end
+$var wire 1 8 I3 $end
+$var wire 1 A O $end
+$var wire 1 > I0 $end
+$upscope $end
+$scope module lut_x0_y0 $end
+$var wire 1 0 I0 $end
+$var wire 1 0 I1 $end
+$var wire 1 0 I2 $end
+$var wire 1 / I3 $end
+$var wire 1 @ O $end
+$upscope $end
+$scope module lut_x0_y1 $end
+$var wire 1 ) I0 $end
+$var wire 1 ( I1 $end
+$var wire 1 ( I2 $end
+$var wire 1 ) I3 $end
+$var wire 1 ? O $end
+$upscope $end
+$scope module lut_x0_y2 $end
+$var wire 1 ) I0 $end
+$var wire 1 ( I1 $end
+$var wire 1 * I2 $end
+$var wire 1 ( I3 $end
+$var wire 1 > O $end
+$upscope $end
+$scope module lut_x1_y0 $end
+$var wire 1 @ I0 $end
+$var wire 1 J I1 $end
+$var wire 1 K I2 $end
+$var wire 1 L I3 $end
+$var wire 1 = O $end
+$upscope $end
+$scope module lut_x1_y1 $end
+$var wire 1 > I0 $end
+$var wire 1 > I1 $end
+$var wire 1 M I2 $end
+$var wire 1 N I3 $end
+$var wire 1 < O $end
+$upscope $end
+$scope module lut_x1_y2 $end
+$var wire 1 : I0 $end
+$var wire 1 O I1 $end
+$var wire 1 P I2 $end
+$var wire 1 Q I3 $end
+$var wire 1 ; O $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+0Q
+0P
+0O
+0N
+0M
+0L
+0K
+0J
+0I
+0H
+0G
+0F
+0E
+0D
+0C
+xB
+xA
+x@
+0?
+0>
+x=
+1<
+x;
+z:
+z9
+z8
+z7
+z6
+z5
+z4
+z3
+z2
+z1
+z0
+z/
+z.
+z-
+z,
+z+
+0*
+0)
+0(
+0'
+bx &
+b0 %
+b0 $
+b0 #
+b0 "
+0!
+$end
+#5000
+b1 $
+b0 &
+b1 %
+#10000
+1'
+b1 "
+b1 #
+#15000
+b1 &
+b10 %
+#20000
+0'
+1(
+b10 "
+b10 #
+#25000
+b10 &
+b11 %
+#30000
+1'
+b11 "
+b11 #
+#35000
+b10 $
+b11 &
+b100 %
+#40000
+0'
+1<
+1>
+0(
+1)
+b100 "
+b100 #
+#45000
+b100 &
+b101 %
+#50000
+1'
+b101 "
+b101 #
+#55000
+b11 $
+b101 &
+b110 %
+#60000
+0'
+1<
+0>
+1(
+b110 "
+b110 #
+#65000
+b100 $
+b110 &
+b111 %
+#70000
+1'
+b111 "
+b111 #
+#75000
+b111 &
+b1000 %
+#80000
+0'
+0?
+0(
+0)
+1*
+b1000 "
+b1000 #
+#85000
+b1000 &
+b1001 %
+#90000
+1'
+b1001 "
+b1001 #
+#95000
+b101 $
+b1001 &
+b1010 %
+#100000
+0'
+1(
+b1010 "
+b1010 #
+#105000
+b110 $
+b1010 &
+b1011 %
+#110000
+1'
+b1011 "
+b1011 #
+#115000
+b1011 &
+b1100 %
+#120000
+0'
+0(
+1)
+b1100 "
+b1100 #
+#125000
+b111 $
+b1100 &
+b1101 %
+#130000
+1'
+b1101 "
+b1101 #
+#135000
+b1101 &
+b1110 %
+#140000
+0'
+1(
+b1110 "
+b1110 #
+#145000
+b1110 &
+b1111 %
+#150000
+1'
+b1111 "
+b1111 #
+#155000
+b1000 $
+b1111 &
+b10000 %
+#160000
+b10000 #
+#170000

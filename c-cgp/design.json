@@ -1,0 +1,545 @@
+{
+  "creator": "Yosys 0.33 (git sha1 2584903a060)",
+  "modules": {
+    "cgp_module": {
+      "attributes": {
+        "top": "00000000000000000000000000000001",
+        "src": "individual.v:0.0-199.10"
+      },
+      "ports": {
+        "in0": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "in1": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "in2": {
+          "direction": "input",
+          "bits": [ 4 ]
+        },
+        "in3": {
+          "direction": "input",
+          "bits": [ 5 ]
+        },
+        "x3_y0": {
+          "direction": "output",
+          "bits": [ 6 ]
+        },
+        "x3_y1": {
+          "direction": "output",
+          "bits": [ 7 ]
+        },
+        "x3_y2": {
+          "direction": "output",
+          "bits": [ 8 ]
+        },
+        "x3_y3": {
+          "direction": "output",
+          "bits": [ 9 ]
+        }
+      },
+      "cells": {
+        "lut_0_0": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "0000000110100010"
+          },
+          "attributes": {
+            "BEL": "X1/Y1/lc0",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:11.7-17.6"
+          },
+          "connections": {
+            "I0": [ 2 ],
+            "I1": [ 2 ],
+            "I2": [ "0" ],
+            "I3": [ "0" ],
+            "O": [ 10 ]
+          }
+        },
+        "lut_0_1": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "0100100100000100"
+          },
+          "attributes": {
+            "BEL": "X1/Y1/lc1",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:59.7-65.6"
+          },
+          "connections": {
+            "I0": [ 3 ],
+            "I1": [ 5 ],
+            "I2": [ 3 ],
+            "I3": [ 3 ],
+            "O": [ 11 ]
+          }
+        },
+        "lut_0_2": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1101000010111000"
+          },
+          "attributes": {
+            "BEL": "X1/Y1/lc2",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:107.7-113.6"
+          },
+          "connections": {
+            "I0": [ 4 ],
+            "I1": [ "0" ],
+            "I2": [ "0" ],
+            "I3": [ 5 ],
+            "O": [ 12 ]
+          }
+        },
+        "lut_0_3": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1110010101110000"
+          },
+          "attributes": {
+            "BEL": "X1/Y1/lc3",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:155.7-161.6"
+          },
+          "connections": {
+            "I0": [ 2 ],
+            "I1": [ "0" ],
+            "I2": [ 2 ],
+            "I3": [ 2 ],
+            "O": [ 13 ]
+          }
+        },
+        "lut_1_0": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1101011101010101"
+          },
+          "attributes": {
+            "BEL": "X2/Y1/lc0",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:23.7-29.6"
+          },
+          "connections": {
+            "I0": [ 11 ],
+            "I1": [ 10 ],
+            "I2": [ 12 ],
+            "I3": [ 13 ],
+            "O": [ 14 ]
+          }
+        },
+        "lut_1_1": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1001110101010111"
+          },
+          "attributes": {
+            "BEL": "X2/Y1/lc1",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:71.7-77.6"
+          },
+          "connections": {
+            "I0": [ "0" ],
+            "I1": [ "0" ],
+            "I2": [ 11 ],
+            "I3": [ 13 ],
+            "O": [ 15 ]
+          }
+        },
+        "lut_1_2": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "0111011011010110"
+          },
+          "attributes": {
+            "BEL": "X2/Y1/lc2",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:119.7-125.6"
+          },
+          "connections": {
+            "I0": [ "0" ],
+            "I1": [ 13 ],
+            "I2": [ "0" ],
+            "I3": [ "0" ],
+            "O": [ 16 ]
+          }
+        },
+        "lut_1_3": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1011111011001010"
+          },
+          "attributes": {
+            "BEL": "X2/Y1/lc3",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:167.7-173.6"
+          },
+          "connections": {
+            "I0": [ 13 ],
+            "I1": [ 13 ],
+            "I2": [ 13 ],
+            "I3": [ 13 ],
+            "O": [ 17 ]
+          }
+        },
+        "lut_2_0": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1111101100110111"
+          },
+          "attributes": {
+            "BEL": "X3/Y1/lc0",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:35.7-41.6"
+          },
+          "connections": {
+            "I0": [ 14 ],
+            "I1": [ 13 ],
+            "I2": [ 11 ],
+            "I3": [ 10 ],
+            "O": [ 18 ]
+          }
+        },
+        "lut_2_1": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "0111001110011011"
+          },
+          "attributes": {
+            "BEL": "X3/Y1/lc1",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:83.7-89.6"
+          },
+          "connections": {
+            "I0": [ 14 ],
+            "I1": [ "0" ],
+            "I2": [ "0" ],
+            "I3": [ 11 ],
+            "O": [ 19 ]
+          }
+        },
+        "lut_2_2": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1110011111001001"
+          },
+          "attributes": {
+            "BEL": "X3/Y1/lc2",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:131.7-137.6"
+          },
+          "connections": {
+            "I0": [ 17 ],
+            "I1": [ 17 ],
+            "I2": [ 10 ],
+            "I3": [ 14 ],
+            "O": [ 20 ]
+          }
+        },
+        "lut_2_3": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "0010001101101001"
+          },
+          "attributes": {
+            "BEL": "X3/Y1/lc3",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:179.7-185.6"
+          },
+          "connections": {
+            "I0": [ "0" ],
+            "I1": [ 13 ],
+            "I2": [ "0" ],
+            "I3": [ 10 ],
+            "O": [ 21 ]
+          }
+        },
+        "lut_3_0": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "0110101100001100"
+          },
+          "attributes": {
+            "BEL": "X4/Y1/lc0",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:47.7-53.6"
+          },
+          "connections": {
+            "I0": [ "0" ],
+            "I1": [ 18 ],
+            "I2": [ 18 ],
+            "I3": [ 14 ],
+            "O": [ 6 ]
+          }
+        },
+        "lut_3_1": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1110100011100111"
+          },
+          "attributes": {
+            "BEL": "X4/Y1/lc1",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:95.7-101.6"
+          },
+          "connections": {
+            "I0": [ 16 ],
+            "I1": [ "0" ],
+            "I2": [ 14 ],
+            "I3": [ 18 ],
+            "O": [ 7 ]
+          }
+        },
+        "lut_3_2": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1111100010001010"
+          },
+          "attributes": {
+            "BEL": "X4/Y1/lc2",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:143.7-149.6"
+          },
+          "connections": {
+            "I0": [ 18 ],
+            "I1": [ 14 ],
+            "I2": [ "0" ],
+            "I3": [ 14 ],
+            "O": [ 8 ]
+          }
+        },
+        "lut_3_3": {
+          "hide_name": 0,
+          "type": "SB_LUT4",
+          "parameters": {
+            "LUT_INIT": "1101111011110001"
+          },
+          "attributes": {
+            "BEL": "X4/Y1/lc3",
+            "dont_touch": "00000000000000000000000000000001",
+            "keep": "00000000000000000000000000000001",
+            "module_not_derived": "00000000000000000000000000000001",
+            "src": "individual.v:191.7-197.6"
+          },
+          "connections": {
+            "I0": [ 21 ],
+            "I1": [ 16 ],
+            "I2": [ "0" ],
+            "I3": [ "0" ],
+            "O": [ 9 ]
+          }
+        }
+      },
+      "netnames": {
+        "in0": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:1.22-1.25"
+          }
+        },
+        "in1": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:1.27-1.30"
+          }
+        },
+        "in2": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:1.32-1.35"
+          }
+        },
+        "in3": {
+          "hide_name": 0,
+          "bits": [ 5 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:1.37-1.40"
+          }
+        },
+        "x0_y0": {
+          "hide_name": 0,
+          "bits": [ 10 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.21-4.26"
+          }
+        },
+        "x0_y1": {
+          "hide_name": 0,
+          "bits": [ 11 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.42-4.47"
+          }
+        },
+        "x0_y2": {
+          "hide_name": 0,
+          "bits": [ 12 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.63-4.68"
+          }
+        },
+        "x0_y3": {
+          "hide_name": 0,
+          "bits": [ 13 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.84-4.89"
+          }
+        },
+        "x1_y0": {
+          "hide_name": 0,
+          "bits": [ 14 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.28-4.33"
+          }
+        },
+        "x1_y1": {
+          "hide_name": 0,
+          "bits": [ 15 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.49-4.54"
+          }
+        },
+        "x1_y2": {
+          "hide_name": 0,
+          "bits": [ 16 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.70-4.75"
+          }
+        },
+        "x1_y3": {
+          "hide_name": 0,
+          "bits": [ 17 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.91-4.96"
+          }
+        },
+        "x2_y0": {
+          "hide_name": 0,
+          "bits": [ 18 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.35-4.40"
+          }
+        },
+        "x2_y1": {
+          "hide_name": 0,
+          "bits": [ 19 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.56-4.61"
+          }
+        },
+        "x2_y2": {
+          "hide_name": 0,
+          "bits": [ 20 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.77-4.82"
+          }
+        },
+        "x2_y3": {
+          "hide_name": 0,
+          "bits": [ 21 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:4.98-4.103"
+          }
+        },
+        "x3_y0": {
+          "hide_name": 0,
+          "bits": [ 6 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:2.23-2.28"
+          }
+        },
+        "x3_y1": {
+          "hide_name": 0,
+          "bits": [ 7 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:2.30-2.35"
+          }
+        },
+        "x3_y2": {
+          "hide_name": 0,
+          "bits": [ 8 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:2.37-2.42"
+          }
+        },
+        "x3_y3": {
+          "hide_name": 0,
+          "bits": [ 9 ],
+          "attributes": {
+            "keep": "00000000000000000000000000000001",
+            "src": "individual.v:2.44-2.49"
+          }
+        }
+      }
+    }
+  }
+}

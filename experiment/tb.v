@@ -2,69 +2,53 @@
 
 module tb;
     reg [3:0] in;
-    wire out0, out1, out2, out3;
-    reg [3:0] out_vec;
-    reg [3:0] exp_vec;
-    integer i, bit;
+    wire out;
+    integer i;
     real total_distance = 0;
-    real total_bits = 0;
+    real total = 0;
     real score;
 
     // DUT
     cgp_module dut (
         .in0(in[0]), .in1(in[1]),
         .in2(in[2]), .in3(in[3]),
-        .out0(out0), .out1(out1),
-        .out2(out2), .out3(out3)
+        .out0(out)
     );
 
-    // Expected 4-bit sum for a 2-bit + 2-bit adder
-    function [3:0] expected;
+    // Expected XOR function
+    function expected;
         input [3:0] v;
-        reg [1:0] A, B;
-        reg [3:0] S;
-        begin
-            A = v[1:0];
-            B = v[3:2];
-            S = A + B;
-            expected = S;
-        end
+        expected = v[0] ^ v[1] ^ v[2] ^ v[3];
     endfunction
 
-    // Hamming distance for one bit
+    // Compute Hamming distance between two bits
     function integer hamming_bit;
         input a, b;
-        begin
-            hamming_bit = (a !== b) ? 1 : 0;
-        end
+        hamming_bit = (a !== b) ? 1 : 0;
     endfunction
 
     initial begin
+        // Enable VCD dump
         $dumpfile("tb.vcd");
         $dumpvars(0, tb);
 
+        // Loop through all 16 input patterns
         for (i = 0; i < 16; i = i + 1) begin
             in = i;
-            #5;
+            #5; // wait for signals to propagate
 
-            // Capture outputs into a vector (LSB = out0)
-            out_vec = {out3, out2, out1, out0};
-            exp_vec = expected(in);
+            // add 1 if the bits differ
+            total_distance = total_distance + hamming_bit(out, expected(in));
+            total = total + 1;
 
-            // Compare bit by bit
-            for (bit = 0; bit < 4; bit = bit + 1) begin
-                total_distance = total_distance + hamming_bit(out_vec[bit], exp_vec[bit]);
-                total_bits = total_bits + 1;
-            end
-
-            #5;
+            #5; // keep each input stable for 10 ns total
         end
 
-        score = 1.0 - (1.0 * total_distance / total_bits);
-        if (score == 0.5) score = 0.0; // discourage trivial outputs
+        score = 1.0 - (1.0 * total_distance / total);
+        if(score == 0.5) score = 0.0;
         $display("SCORE: %0.10f", score);
 
-        #10;
+        #10; // give VCD time to record last transition
         $finish;
     end
 endmodule

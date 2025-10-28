@@ -22,7 +22,7 @@ class Node:
     def to_verilog(self):
         def input_str(x, y):
             if self.x == 0:
-                return f"in{y%10}"
+                return f"in{y%4}"
             elif x < 0 or x >= self.width or y < 0 or y >= self.width:
                 return "1'b0"
             else:
@@ -30,7 +30,7 @@ class Node:
             
         def output_str(x, y):
             if self.x == self.width - 1:
-                return f"out{y%10}"
+                return f"out{y%4}"
             elif x < 0 or x >= self.width or y < 0 or y >= self.width:
                 return "1'b0"
             else:

@@ -41,8 +41,8 @@ def generate_verilog(genotype):
     for node in nodes:
         wires.append(f"x{node.x}_y{node.y}")
             
-    inputs = [f"in{i}" for i in range(10)]
-    outputs = [f"out{i}" for i in range(10)]
+    inputs = [f"in{i}" for i in range(4)]
+    outputs = [f"out{i}" for i in range(4)]
     
     verilog_lines = []
     verilog_lines.append(f"module cgp_module (")
@@ -71,7 +71,7 @@ def simulate_directory(directory):
             subprocess.run(
                 ["iverilog", "-o", output_filepath, filepath, "./ice40_stubs.v", "./tb.v"],
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                # stderr=subprocess.DEVNULL
             )
             result = subprocess.run(
                 ["vvp", output_filepath],
@@ -95,6 +95,8 @@ def simulate_directory(directory):
 
 def make_population(size, genotype_length):
     return {i: np.random.randint(0, 2**32, size=genotype_length, dtype=np.uint32) for i in range(size)}
+    # lut = 0x6996 << 16
+    # return {i: np.random.randint(0, 2**16, size=genotype_length, dtype=np.uint32) | lut for i in range(size)}
 
 def save_population_to_files(population, directory):
     if not os.path.isdir(directory):
@@ -141,6 +143,30 @@ def evolve(population_size=32, genotype_length=25, generations=10):
                 pop[ind] = child_genotype
         
         mutate_population(pop, rate=0.01)
+        
+def synthesize_directory(directory):
+    for filename in os.listdir(directory):
+        if filename.endswith(".v"):
+            filepath = os.path.join(directory, filename)
+            output_filepath = os.path.join(directory, filename.replace(".v", ".rpt"))
+            subprocess.run(
+                ["yosys", "-p", f"read_verilog {filepath}; synth_ice40 -top cgp_module -json {output_filepath}"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+
+def pnr_directory(directory):
+    for filename in os.listdir(directory):
+        if filename.endswith(".rpt"):
+            filepath = os.path.join(directory, filename)
+            output_filepath = os.path.join(directory, filename.replace(".rpt", ".asc"))
+            subprocess.run(
+                ["nextpnr-ice40", "--up5k", "--json", filepath, "--asc", output_filepath, "--pcf", "./constraints.pcf", "--package", "sg48", "--pcf-allow-unconstrained", "--force"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
                 
 if __name__ == "__main__":     
-    evolve(100, 9, 10000)
+    evolve(100, 4, 64)
+    synthesize_directory("./population_63")
+    pnr_directory("./population_63")

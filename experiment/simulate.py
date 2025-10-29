@@ -167,6 +167,6 @@ def pnr_directory(directory):
             )
                 
 if __name__ == "__main__":     
-    evolve(100, 4, 64)
+    evolve(100, 4, 100)
     synthesize_directory("./population_63")
     pnr_directory("./population_63")

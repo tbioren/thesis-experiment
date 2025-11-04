@@ -2,6 +2,8 @@ import os
 import subprocess
 import numpy as np
 from node import Node
+import matplotlib.pyplot as plt
+import concurrent.futures
 
 def generate_verilog(genotype):
     nodes = []
@@ -106,11 +108,6 @@ def save_population_to_files(population, directory):
         with open(filename, 'w') as f:
             verilog_code = generate_verilog(ind)
             f.write(verilog_code)
-            
-def cleanup_directory(directory):
-    for filename in os.listdir(directory):
-        filepath = os.path.join(directory, filename)
-        os.remove(filepath)
         
 def mutate_population(population, rate=0.01):
     for i in population:
@@ -121,28 +118,44 @@ def mutate_population(population, rate=0.01):
                     gene ^= (1 << k)
             population[i][j] = gene
 
-def evolve(population_size=32, genotype_length=25, generations=10):
+def evolve(population_size=32, genotype_length=25, generations=10, directory="./run"):
+    def crossover(parent1, parent2):
+        point = np.random.randint(1, genotype_length - 1)
+        child = np.concatenate((parent1[:point], parent2[point:]))
+        return child
+    
+    if not os.path.isdir(directory):
+        os.makedirs(directory, exist_ok=True)
+    
+    scorefile = os.path.join(directory, "scores.csv")
+    with open(scorefile, 'w') as f:
+        header = ",".join(["generation"] + [f"individual{i}" for i in range(population_size)]) + "\n"
+        f.write(header)
     pop = make_population(population_size, genotype_length)
     for generation in range(generations):
         print(f"Generation {generation}")
-        save_population_to_files(pop, f"./population_{generation}")
-        scores = simulate_directory(f"./population_{generation}")
+        save_population_to_files(pop, os.path.join(directory, f"population_{generation}"))
+        scores = simulate_directory(os.path.join(directory, f"population_{generation}"))
         print("Scores:", scores)
         print("Average score:", np.mean(list(scores.values())) if scores else 0)
         print("Best score:", max(scores.values()) if scores else 0)
         if scores:
             top_half = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)[:population_size//2]
-            # print("Top half:", top_half)
         else:
             print("No scores found.")
-        
+        if scorefile:
+            with open(scorefile, 'a') as f:
+                line = ",".join([str(generation)] + [str(scores.get(i, 0)) for i in range(population_size)]) + "\n"
+                f.write(line)
         for ind in pop:
             if ind not in top_half:
-                parent = top_half[np.random.randint(0, len(top_half))][0]
-                child_genotype = pop[parent].copy()
+                parent1 = top_half[np.random.randint(0, len(top_half))][0]
+                parent2 = top_half[np.random.randint(0, len(top_half))][0]
+                child_genotype = crossover(pop[parent1], pop[parent2])
                 pop[ind] = child_genotype
         
         mutate_population(pop, rate=0.01)
+
         
 def synthesize_directory(directory):
     for filename in os.listdir(directory):
@@ -166,7 +179,6 @@ def pnr_directory(directory):
                 stderr=subprocess.DEVNULL
             )
                 
-if __name__ == "__main__":     
-    evolve(100, 4, 100)
-    synthesize_directory("./population_63")
-    pnr_directory("./population_63")
+if __name__ == "__main__":
+    for gen in range(100):
+        evolve(population_size=64, genotype_length=9, generations=100, directory=f"./run{gen}")

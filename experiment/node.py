@@ -58,13 +58,5 @@ class Node:
         .I3({input_str(self.input3x, self.input3y)})
         );"""
 
-    def mutate(self, lut_rate=0.01, input_rate=0.1, x_radius=2, y_radius=5, none_weight=0.25):
-        # Mutate the function with a certain probability
-        flip_mask = 0
-        for i in range(16):
-            if np.random.rand() < lut_rate:
-                flip_mask |= (1 << i)
-        self.function ^= flip_mask
-
     def __repr__(self):
         return self.__str__()

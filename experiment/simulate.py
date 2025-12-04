@@ -5,34 +5,43 @@ from node import Node
 import matplotlib.pyplot as plt
 import concurrent.futures
 
+# Genotype structure:
+# [LUT: int16
+# input0N: float32, input0S: float32, input0E: float32, input0W: float32, input0Scale: float32
+# input1N: float32, input1S: float32, input1E: float32, input1W: float32, input1Scale: float32
+# input2N: float32, input2S: float32, input2E: float32, input2W: float32, input2Scale: float32
+# input3N: float32, input3S: float32, input3E: float32, input3W: float32, input3Scale: float32]
+# Repeated for each node in the grid
+
 def generate_verilog(genotype):
     nodes = []
     width = int(len(genotype) ** 0.5)
+    
+    def newIndex(index, north, south, east, west, scale):
+        m = max(north, south, east, west)
+        if m == north:
+            return round(index - width*scale)
+        elif m == south:
+            return round(index + width*scale)
+        elif m == east:
+            return round(index + scale)
+        elif m == west:
+            return round(index - scale)
+        else:
+            return index  # self-loop if no direction is greater
+        
     for i, gene in enumerate(genotype):
-
-        lut = gene >> 16
+        lut = int(gene[0]) & 0xFFFF
         x = i % width
         y = i // width
-        
-        # Offsets
-        input0x = int((gene >> 14) & 0b11) - 2
-        input0y = int((gene >> 12) & 0b11) - 2
-        input1x = int((gene >> 10) & 0b11) - 2
-        input1y = int((gene >> 8) & 0b11) - 2
-        input2x = int((gene >> 6) & 0b11) - 2
-        input2y = int((gene >> 4) & 0b11) - 2
-        input3x = int((gene >> 2) & 0b11) - 2
-        input3y = int(gene & 0b11) - 2
-
-        # Actual Values
-        input0x = x + input0x
-        input0y = y + input0y
-        input1x = x + input1x
-        input1y = y + input1y
-        input2x = x + input2x
-        input2y = y + input2y
-        input3x = x + input3x
-        input3y = y + input3y
+        input0x = newIndex(i, gene[1], gene[2], gene[3], gene[4], gene[5]) % width
+        input0y = newIndex(i, gene[1], gene[2], gene[3], gene[4], gene[5]) // width
+        input1x = newIndex(i, gene[6], gene[7], gene[8], gene[9], gene[10]) % width
+        input1y = newIndex(i, gene[6], gene[7], gene[8], gene[9], gene[10]) // width
+        input2x = newIndex(i, gene[11], gene[12], gene[13], gene[14], gene[15]) % width
+        input2y = newIndex(i, gene[11], gene[12], gene[13], gene[14], gene[15]) // width
+        input3x = newIndex(i, gene[15], gene[16], gene[17], gene[18], gene[19]) % width
+        input3y = newIndex(i, gene[15], gene[16], gene[17], gene[18], gene[19]) // width
 
         nodes.append(Node(width, x, y, lut, input0x, input0y, input1x, input1y, input2x, input2y, input3x, input3y))
         
@@ -95,10 +104,17 @@ def simulate_directory(directory):
             )
     return scores
 
-def make_population(size, genotype_length):
-    return {i: np.random.randint(0, 2**32, size=genotype_length, dtype=np.uint32) for i in range(size)}
-    # lut = 0x6996 << 16
-    # return {i: np.random.randint(0, 2**16, size=genotype_length, dtype=np.uint32) | lut for i in range(size)}
+def make_population(size, num_luts):
+    population = {}
+    for i in range(size):
+        genotype = []
+        for j in range(num_luts):
+            lut = np.random.randint(0, 2**16)
+            directions = np.random.normal(1, 1, 20)
+            genotype.append([lut] + directions.tolist())
+        population[i] = np.array(genotype)
+    print(population[0])
+    return population
 
 def save_population_to_files(population, directory):
     if not os.path.isdir(directory):
@@ -111,12 +127,17 @@ def save_population_to_files(population, directory):
         
 def mutate_population(population, rate=0.01):
     for i in population:
-        for j in range(len(population[i])):
-            gene = population[i][j]
-            for k in range(32):
+        genotype = population[i]
+        for j in range(len(genotype)):
+            # Mutate LUT
+            if np.random.rand() < rate:
+                genotype[j][0] = int(genotype[j][0]) ^ int((1 << np.random.randint(0,16)))
+            # Mutate directions
+            for d in range(1, 21):
                 if np.random.rand() < rate:
-                    gene ^= (1 << k)
-            population[i][j] = gene
+                    genotype[j][d] += np.random.normal(0, 0.1)
+        population[i] = genotype
+    print(f"Individual 0: {population[0]}")
 
 def evolve(population_size=32, genotype_length=25, generations=10, directory="./run"):
     def crossover(parent1, parent2):
@@ -154,8 +175,7 @@ def evolve(population_size=32, genotype_length=25, generations=10, directory="./
                 child_genotype = crossover(pop[parent1], pop[parent2])
                 pop[ind] = child_genotype
         
-        mutate_population(pop, rate=0.01)
-
+        mutate_population(pop, rate=0.1)
         
 def synthesize_directory(directory):
     for filename in os.listdir(directory):
@@ -180,5 +200,13 @@ def pnr_directory(directory):
             )
                 
 if __name__ == "__main__":
-    for gen in range(100):
-        evolve(population_size=64, genotype_length=9, generations=100, directory=f"./run{gen}")
+    # evolve(population_size=64, genotype_length=9, generations=100, directory="./evolution_run_1")
+    # synthesize_directory("./evolution_run_1/population_99")
+    # pnr_directory("./evolution_run_1/population_99")
+    try:
+        evolve(population_size=4, genotype_length=1, generations=1, directory="./test_run")
+    except Exception as e:
+        print("An error occurred during evolution:", e)
+    finally:
+        synthesize_directory("./test_run/population_0")
+        pnr_directory("./test_run/population_0")

@@ -10,10 +10,6 @@ summary = data.groupby('Generation').agg(['mean', 'std'])
 gens = summary.index
 
 plt.plot(gens, summary['BestScore']['mean'], label='Best (mean)')
-plt.fill_between(gens,
-    summary['BestScore']['mean'] - summary['BestScore']['std'],
-    summary['BestScore']['mean'] + summary['BestScore']['std'],
-    alpha=0.2)
 plt.plot(gens, summary['AverageScore']['mean'], label='Average (mean)', linestyle='--')
 plt.xlabel("Generation")
 plt.ylabel("Fitness")

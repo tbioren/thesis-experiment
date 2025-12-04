@@ -1,27 +1,30 @@
 # Node Genotype Layout:
 # ----------------
-# 0 - 2  | Input 0 (3 bits encoding TileDirection)
-# 3 - 5  | Input 1 (3 bits encoding TileDirection)
-# 6 - 8  | Input 2 (3 bits encoding TileDirection)
-# 9 - 11 | Input 3 (3 bits encoding TileDirection)
-# 12 - 31 | LUT Init (20 bits)
+# 0 - 1  | Input 0 (3 bits encoding TileDirection)
+# 2 - 3  | Input 1 (3 bits encoding TileDirection)
+# 4 - 5  | Input 2 (3 bits encoding TileDirection)
+# 6 - 7  | Input 3 (3 bits encoding TileDirection)
+# 8 - 27 | LUT Init (20 bits)
 
 import os
 import subprocess
 import numpy as np
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import random
-from config_gen import TileDirection, generate_tile
+from config_improved import TileDirection, generate_tile
 
 @dataclass
 class Config:
     lut_size: int = 20
-    node_size: int = lut_size + 12  # 32 total bits
+    node_size: int = lut_size + 8  # 28 total bits
     mutation_rate: float = 0.01
-    num_nodes: int = 16
-    population_size: int = 32
+    num_nodes: int = 960
+    population_size: int = 10
     generations: int = 10
-
+    logic_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(34) for c in range(34) if r not in {0, 33} and c not in {0, 8, 25, 33}]) # This generates the coords of all the logic tiles (I know it's awful)
+    ram_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(34) for c in (8, 25) if r not in {0, 33}])
+    io_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(34) for c in range(34) if (r in (0, 33) or c in (0, 33)) and (c, r) not in [(0,0), (33,0), (33,33), (0,33)]])
+    
 # Mapping from 3-bit integer to TileDirection
 DIRECTION_MAP = [
     TileDirection.BOT,
@@ -34,11 +37,18 @@ DIRECTION_MAP = [
     TileDirection.TNR,
 ]
 
-def decode_direction(bits):
+INPUT_COVERAGE = {
+    0: [TileDirection.BOT, TileDirection.TOP, TileDirection.LFT, TileDirection.BNR],
+    1: [TileDirection.BOT, TileDirection.TOP, TileDirection.LFT, TileDirection.BNR],
+    2: [TileDirection.RGT, TileDirection.BNL, TileDirection.TNL, TileDirection.TNR],
+    3: [TileDirection.RGT, TileDirection.BNL, TileDirection.TNL, TileDirection.TNR],
+}
+
+def decode_direction(input_num, bits):
     """Convert 3-bit integer (0-7) to TileDirection."""
     if bits < 0 or bits > 7:
         return TileDirection.NULL
-    return DIRECTION_MAP[bits]
+    return INPUT_COVERAGE[input_num][bits]
 
 def encode_direction(direction):
     """Convert TileDirection to 3-bit integer (0-7)."""
@@ -55,10 +65,10 @@ def decode_genotype(gene):
         (input0, input1, input2, input3, lut_init)
     """
     # Extract 3-bit direction encodings
-    input0 = decode_direction((gene >> 0) & 0x7)
-    input1 = decode_direction((gene >> 3) & 0x7)
-    input2 = decode_direction((gene >> 6) & 0x7)
-    input3 = decode_direction((gene >> 9) & 0x7)
+    input0 = decode_direction(0, (gene >> 0) & 0x3)
+    input1 = decode_direction(1, (gene >> 2) & 0x3)
+    input2 = decode_direction(2, (gene >> 4) & 0x3)
+    input3 = decode_direction(3, (gene >> 6) & 0x3)
 
     # Extract 20-bit LUT init (bits 12-31)
     lut_init = (gene >> 12) & 0xFFFFF
@@ -80,15 +90,38 @@ def generate_asc_config(genotype):
     Returns:
         String containing the ASCII bitstream
     """
-    # For now, generate tiles for all nodes
-    tiles = []
-    for gene in genotype:
-        tile = generate_tile_from_gene(gene)
-        tiles.append(tile)
+    
+    def blank_io(x, y):
+        return f".io_tile {x} {y}\n" + "\n".join(["0"*18 for _ in range(16)])
+    
+    def blank_ram(x, y):
+        return f".ram{'t' if y % 2 == 0 else 'b'}_tile {x} {y}\n" + "\n".join(["0"*42 for _ in range(16)])
+    
+    def blank_logic(x, y):
+        return f".logic_tile {x} {y}\n" + "\n".join(["0"*54 for _ in range(16)])
+    
+    config = Config()
+    asc = ".comment direct routing generated\n.device 8k\n"
+    for i in range(len(genotype)):
+        x, y = config.logic_tiles[i]
+        gene = genotype[i]
+        tile = generate_tile_from_gene(x, y, gene)
+        asc += tile + "\n"
+        
+    for i in range(len(genotype), len(config.logic_tiles)):
+        x, y = config.logic_tiles[i]
+        tile = blank_logic(x, y)
+        asc += tile + "\n"
 
-    # TODO: Format tiles into proper ASCII bitstream format
-    # This will need to match the iCE40 ASCII format
-    return tiles
+    for x, y in config.io_tiles:
+        tile = blank_io(x, y)
+        asc += tile + "\n"
+        
+    for x, y in config.ram_tiles:
+        tile = blank_ram(x, y)
+        asc += tile + "\n"
+        
+    return asc
 
 def make_population(size, num_nodes):
     """Create initial random population."""
@@ -100,7 +133,7 @@ def make_population(size, num_nodes):
             gene = np.random.randint(0, 2**32, dtype=np.uint32)
             genotype.append(gene)
         population[i] = np.array(genotype, dtype=np.uint32)
-    print(f"Individual 0: {population[0]}")
+    # print(f"Individual 0: {population[0]}")
     return population
 
 def save_population_to_files(population, directory):
@@ -198,5 +231,5 @@ def evolve(population_size=32, num_nodes=16, generations=10, directory="./run"):
 if __name__ == "__main__":
     config = Config()
     population = make_population(config.population_size, config.num_nodes)
-    print("Initial Population:")
-    print(generate_tile_from_gene(population[0][0]))
+    # print("Initial Population:")
+    print(generate_asc_config(population[0]))

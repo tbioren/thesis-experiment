@@ -6,6 +6,10 @@
 # 6 - 7  | Input 3 (3 bits encoding TileDirection)
 # 8 - 27 | LUT Init (20 bits)
 
+# TODO: If a RAM tile separates 2 tiles, use an sp4_h net to connect them.
+#       This means setting B1[46] in the left tile and telling the right tile to connect to relevant span
+
+import math
 import os
 import subprocess
 import numpy as np
@@ -18,12 +22,14 @@ class Config:
     lut_size: int = 20
     node_size: int = lut_size + 8  # 28 total bits
     mutation_rate: float = 0.01
-    num_nodes: int = 960
+    num_nodes: int = 30
     population_size: int = 10
     generations: int = 10
-    logic_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(34) for c in range(34) if r not in {0, 33} and c not in {0, 8, 25, 33}]) # This generates the coords of all the logic tiles (I know it's awful)
-    ram_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(34) for c in (8, 25) if r not in {0, 33}])
-    io_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(34) for c in range(34) if (r in (0, 33) or c in (0, 33)) and (c, r) not in [(0,0), (33,0), (33,33), (0,33)]])
+    board_width: int = 10
+    logic_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(18) for c in range(14) if r not in {0, 17} and c not in {0, 3, 10, 13}]) # This generates the coords of all the logic tiles (I know it's awful)
+    ram_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(18) for c in (3, 10) if r not in {0, 17}])
+    io_tiles: list[tuple[int, int]] = field(default_factory=lambda: [(c, r) for r in range(18) for c in range(14) if (r in (0, 17) or c in (0, 13)) and (c, r) not in [(0,0), (13,0), (13,17), (0,17)]])
+    ram_columns: list = field(default_factory=lambda: [3, 10])
     
 # Mapping from 3-bit integer to TileDirection
 DIRECTION_MAP = [
@@ -75,10 +81,10 @@ def decode_genotype(gene):
 
     return input0, input1, input2, input3, lut_init
 
-def generate_tile_from_gene(x, y, gene):
+def generate_tile_from_gene(x, y, gene, output=False, past_ram=False):
     """Generate a tile configuration from a 32-bit gene."""
     input0, input1, input2, input3, lut_init = decode_genotype(gene)
-    return generate_tile(x, y, input0, input1, input2, input3, lut_init)
+    return generate_tile(x, y, input0, input1, input2, input3, lut_init, output, past_ram)
 
 def generate_asc_config(genotype):
     """
@@ -92,7 +98,23 @@ def generate_asc_config(genotype):
     """
     
     def blank_io(x, y):
-        return f".io_tile {x} {y}\n" + "\n".join(["0"*18 for _ in range(16)])
+        return f".io_tile {x} {y}\n" + \
+                "000000000000000000\n" + \
+                "000000110000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000010000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n" + \
+                "000000000000000000\n"
     
     def blank_ram(x, y):
         return f".ram{'t' if y % 2 == 0 else 'b'}_tile {x} {y}\n" + "\n".join(["0"*42 for _ in range(16)])
@@ -101,11 +123,13 @@ def generate_asc_config(genotype):
         return f".logic_tile {x} {y}\n" + "\n".join(["0"*54 for _ in range(16)])
     
     config = Config()
-    asc = ".comment direct routing generated\n.device 8k\n"
+    asc = ".comment direct routing generated\n.device 1k\n"
     for i in range(len(genotype)):
         x, y = config.logic_tiles[i]
         gene = genotype[i]
-        tile = generate_tile_from_gene(x, y, gene)
+        output = ((i+1) % config.board_width == 0)
+        past_ram = (x-1) in config.ram_columns
+        tile = generate_tile_from_gene(x, y, gene, output, past_ram)
         asc += tile + "\n"
         
     for i in range(len(genotype), len(config.logic_tiles)):

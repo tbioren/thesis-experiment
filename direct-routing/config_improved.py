@@ -24,6 +24,7 @@ class TileDirection(Enum):
     BNR = 'bnr'      # bottom-right
     TNL = 'tnl'      # top-left
     TNR = 'tnr'      # top-right
+    RAM = 'ram'      # RAM tile connection
     NULL = None      # no neighbor
 
 # =============================================================================
@@ -62,6 +63,7 @@ LOCAL_NET_CONFIG = {
             'bnl': [1, 1, 0, 0, 1],  # neigh_op_bnl_0
             'tnl': [0, 1, 1, 0, 1],  # neigh_op_tnl_0
             'tnr': [0, 0, 1, 0, 1],  # neigh_op_tnr_0
+            'ram': [0, 1, 1, 1, 1],  # Special case for RAM tile connection
         }
     },
     
@@ -73,6 +75,7 @@ LOCAL_NET_CONFIG = {
             'bnl': [1, 1, 0, 0, 1],  # neigh_op_bnl_0
             'tnl': [0, 1, 1, 0, 1],  # neigh_op_tnl_0
             'tnr': [0, 0, 1, 0, 1],  # neigh_op_tnr_0
+            'ram': [0, 1, 1, 1, 1],  # Special case for RAM tile connection
         }
     },
 }
@@ -352,7 +355,7 @@ def get_full_path_config(input_num, neighbor):
         'lut_input_config': get_lut_input_config(input_num, selected_net),
     }
 
-def generate_tile(x, y, input0, input1, input2, input3, lut_init=0):
+def generate_tile(x, y, input0, input1, input2, input3, lut_init=0, output=False, past_ram=False):
     """
     Generate a new tile configuration from scratch given 4 input configurations.
 
@@ -365,6 +368,7 @@ def generate_tile(x, y, input0, input1, input2, input3, lut_init=0):
         input3: TileDirection enum or None for LUT input 3
         lut_init: 20-bit number for LUT initialization (default: 0)
                   Bits are mapped to B0[36]-B0[45] and B1[36]-B1[45]
+        output: If True, connects lutff_0/out to a span12 net (default: False)
 
     Returns:
         list: 16-element list representing the tile configuration,
@@ -375,14 +379,14 @@ def generate_tile(x, y, input0, input1, input2, input3, lut_init=0):
         >>> tile = generate_tile(TileDirection.BNR, TileDirection.BOT, TileDirection.LFT, TileDirection.RGT, lut_init=0xABCDE)
     """
     tile = [['0']*54 for _ in range(16)]
-    tile = modify_tile(tile, input0, input1, input2, input3, lut_init)
+    tile = modify_tile(tile, input0, input1, input2, input3, lut_init, output, past_ram)
     tile_str = f".logic_tile {x} {y}\n"
     for _ in tile:
         tile_str += ''.join(_) + '\n'
     return tile_str
 
 
-def modify_tile(tile, input0, input1, input2, input3, lut_init=0):
+def modify_tile(tile, input0, input1, input2, input3, lut_init=0, output=False, past_ram=False):
     """
     Generate a full tile configuration given 4 input configurations.
 
@@ -405,6 +409,9 @@ def modify_tile(tile, input0, input1, input2, input3, lut_init=0):
     for input_num, neighbor in enumerate(inputs):
         if neighbor is None or neighbor == TileDirection.NULL:
             continue
+        
+        if past_ram and (neighbor == TileDirection.BNL or neighbor == TileDirection.TNL):
+            neighbor = TileDirection.RAM
 
         config = get_full_path_config(input_num, neighbor)
         if config is None:
@@ -430,6 +437,11 @@ def modify_tile(tile, input0, input1, input2, input3, lut_init=0):
         for i in range(10):
             bit_value = (lut_init >> (10 + i)) & 1
             tile[1][36 + i] = str(bit_value)
+            
+    if output:
+        tile[0][47] = '1'
+    
+    tile[1][46] = '1' # Connect to sp4_h net for crossing RAM tiles
 
     return tile
 
